@@ -1,0 +1,38 @@
+<html>
+<head>
+<style type="text/css" >
+body { 
+	text-align: center;
+	margin:30px 0;
+	-webkit-user-select: none;
+	-webkit-touch-callout:none;
+}
+#center { 
+	margin:0 auto; 
+}
+</style>
+	
+</head>
+<body>
+
+	<div id="center" style="width:640px;height:480px;border:1px solid #ccc">
+		<canvas id="canvas-video" width="640" height="480"></canvas>
+	</div>
+	<script src="/jsmpg.js"></script>
+	<script type="text/javascript">
+		// CHANGE THIS TO THE APPROPRIATE WS ADDRESS
+		var domain = window.location.href.split("//")[1].split(":")[0];
+		var wsUrl = 'ws://'+domain+':8084/';
+
+		// Show loading notice
+		var canvas = document.getElementById('canvas-video');
+		var ctx = canvas.getContext('2d');
+		ctx.fillStyle = '#333';
+		ctx.fillText('Loading...', canvas.width/2-30, canvas.height/3);
+
+		// Start the player
+		var client = new WebSocket(wsUrl);
+		var player = new jsmpeg(client, { canvas:canvas });
+	</script>
+</body>
+</html>
