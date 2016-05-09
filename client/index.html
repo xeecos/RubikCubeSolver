@@ -44,24 +44,34 @@ body {
             }
         }
         function checkColor(r,g,b){
+            var m = Math.max(r,Math.max(g,b));
             if(Math.abs(r-g)<30&&r>150&&r>b+80){
-                return "yellow";            
+                return "L";//"yellow";            
             }else if(b>r&&b>g&&r<120){
-                return "blue";
+                return "U";//"blue";
             }else if(r>180&&g>180&&b>180){
-                return "white";
+                return "R";//"white";
             }else if(r>g&&r>b&&g>b&&g>30){
-                return "orange";
+                return "F";//"orange";
             }else if(r>g&&r>b){
-                return "red";
+                return "B";//"red";
             }else if(g>r&&g>b&&r<60){
-                return "green";
+                return "D";//"green";
+            }else if(g==m){
+                return "D";
+            }else if(r==m){
+                return "B";
+            }else if(b==m){
+                return "U";
             }
+            console.log(r,g,b);
         }
         function getPixel(x,y,data){
             var i = (y*640+x)*4;
             return [data[i],data[i+1],data[i+2]];
         }
+        var t=0;
+        var result = "";
         $("#canvas-mark").click(function(){
             console.log("click");
             var _cvs = document.getElementById('canvas-video');
@@ -73,7 +83,7 @@ body {
                     var _rgb = [0,0,0];
 	            	for(var k=0;k<rw;k++){
                         for(var l=0;l<rw;l++){
-                            var rgb = getPixel(sx+i*dw+k,sy+j*dw+l,data);
+                            var rgb = getPixel(sx+j*dw+k,sy+i*dw+l,data);
                             _rgb[0]+=rgb[0];
                             _rgb[1]+=rgb[1];
                             _rgb[2]+=rgb[2];
@@ -82,8 +92,14 @@ body {
                     var r = _rgb[0]/len;
                     var g = _rgb[1]/len;
                     var b = _rgb[2]/len;
-                    console.log(r,g,b,checkColor(r,g,b));
+                   result+=(checkColor(r,g,b)+"");
                 }
+            }
+            t++;
+            if(t>=6){
+                console.log(result);
+                result = "";
+                t = 0;
             }
         });
 		// Start the player
