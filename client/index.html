@@ -1,0 +1,94 @@
+<html>
+<head>
+<style type="text/css" >
+body { 
+	text-align: center;
+	margin:30px 0;
+	-webkit-user-select: none;
+	-webkit-touch-callout:none;
+}
+.center { 
+    width:640px;
+    height:480px;
+	position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+}
+</style>
+	
+	<script src="jquery-1.12.3.min.js"></script>
+</head>
+<body>
+
+	<div id="center" class="center" style="border:1px solid #ccc">
+		<canvas  class="center" style=z-index:1;" id="canvas-video" width="640" height="480"></canvas>
+		<canvas  class="center" style="z-index:2;" id="canvas-mark" width="640" height="480"></canvas>
+	</div>
+	<script src="jsmpg.js"></script>
+	<script type="text/javascript">
+		// CHANGE THIS TO THE APPROPRIATE WS ADDRESS
+		var domain = window.location.href.split("//")[1].split(":")[0];
+		var wsUrl = 'ws://'+domain+':8084/';
+
+		// Show loading notice
+		var canvas = document.getElementById('canvas-mark');
+		var ctx = canvas.getContext('2d');
+        var sx = 170;
+        var sy = 175;
+        var dw = 100;
+        var rw = 10;
+        for(var i=0;i<3;i++){
+            for(var j=0;j<3;j++){
+	        	ctx.strokeRect(sx+i*dw,sy+j*dw,rw,rw);
+            }
+        }
+        function checkColor(r,g,b){
+            if(Math.abs(r-g)<30&&r>150&&r>b+80){
+                return "yellow";            
+            }else if(b>r&&b>g&&r<120){
+                return "blue";
+            }else if(r>180&&g>180&&b>180){
+                return "white";
+            }else if(r>g&&r>b&&g>b&&g>30){
+                return "orange";
+            }else if(r>g&&r>b){
+                return "red";
+            }else if(g>r&&g>b&&r<60){
+                return "green";
+            }
+        }
+        function getPixel(x,y,data){
+            var i = (y*640+x)*4;
+            return [data[i],data[i+1],data[i+2]];
+        }
+        $("#canvas-mark").click(function(){
+            console.log("click");
+            var _cvs = document.getElementById('canvas-video');
+            var _ctx = _cvs.getContext('2d');
+            var data = _ctx.getImageData(0,0,640,480).data;
+            var len = rw*rw;
+            for(var i=0;i<3;i++){
+                for(var j=0;j<3;j++){
+                    var _rgb = [0,0,0];
+	            	for(var k=0;k<rw;k++){
+                        for(var l=0;l<rw;l++){
+                            var rgb = getPixel(sx+i*dw+k,sy+j*dw+l,data);
+                            _rgb[0]+=rgb[0];
+                            _rgb[1]+=rgb[1];
+                            _rgb[2]+=rgb[2];
+                        }
+                    }
+                    var r = _rgb[0]/len;
+                    var g = _rgb[1]/len;
+                    var b = _rgb[2]/len;
+                    console.log(r,g,b,checkColor(r,g,b));
+                }
+            }
+        });
+		// Start the player
+		var client = new WebSocket(wsUrl);
+		var player = new jsmpeg(client, { canvas:document.getElementById('canvas-video') });
+	</script>
+</body>
+</html>
