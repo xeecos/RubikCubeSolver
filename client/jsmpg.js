@@ -293,7 +293,7 @@ jsmpeg.prototype.updateLoader2D = function( ev ) {
 		h = this.canvas.height,
 		ctx = this.canvasContext;
 
-	ctx.fillStyle = '#222';
+	ctx.fillStyle = '#00222222';
 	ctx.fillRect(0, 0, w, h);
 	ctx.fillStyle = '#fff';
 	ctx.fillRect(0, h - h*p, w, h*p);

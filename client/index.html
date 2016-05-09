@@ -7,32 +7,49 @@ body {
 	-webkit-user-select: none;
 	-webkit-touch-callout:none;
 }
-#center { 
-	margin:0 auto; 
+.center { 
+    width:640px;
+    height:480px;
+	position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
 }
 </style>
 	
+	<script src="jquery-1.12.3.min.js"></script>
 </head>
 <body>
 
-	<div id="center" style="width:640px;height:480px;border:1px solid #ccc">
-		<canvas id="canvas-video" width="640" height="480"></canvas>
+	<div id="center" class="center" style="border:1px solid #ccc">
+		<canvas  class="center" style=z-index:1;" id="canvas-video" width="640" height="480"></canvas>
+		<canvas  class="center" style="z-index:2;" id="canvas-mark" width="640" height="480"></canvas>
 	</div>
-	<script src="/jsmpg.js"></script>
+	<script src="jsmpg.js"></script>
 	<script type="text/javascript">
 		// CHANGE THIS TO THE APPROPRIATE WS ADDRESS
 		var domain = window.location.href.split("//")[1].split(":")[0];
 		var wsUrl = 'ws://'+domain+':8084/';
 
 		// Show loading notice
-		var canvas = document.getElementById('canvas-video');
+		var canvas = document.getElementById('canvas-mark');
 		var ctx = canvas.getContext('2d');
-		ctx.fillStyle = '#333';
-		ctx.fillText('Loading...', canvas.width/2-30, canvas.height/3);
-
+        var sx = 150;
+        var sy = 155;
+        var dw = 100;
+        var rw = 40;
+        for(var i=0;i<3;i++){
+            for(var j=0;j<3;j++){
+	        	ctx.strokeRect(sx+i*dw,sy+j*dw,rw,rw);
+            }
+        }
+        $("#canvas-mark").click(function(){
+            console.log("click");
+            var captureCtx = $("#canvas-video").getContext('2d');
+        });
 		// Start the player
 		var client = new WebSocket(wsUrl);
-		var player = new jsmpeg(client, { canvas:canvas });
+		var player = new jsmpeg(client, { canvas:document.getElementById('canvas-video') });
 	</script>
 </body>
 </html>
