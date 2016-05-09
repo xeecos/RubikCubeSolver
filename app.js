@@ -20,6 +20,5 @@ twophase.initialize(function () {
                 twophase.close();
             });
         });
-
     });
 });
