@@ -1,0 +1,30 @@
+<html>
+<head>
+	<title>Rubik's Cube</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+	<script type="text/javascript" src='js/rubiks.js'></script>
+	<script type="text/javascript" src='js/solver.js'></script>
+	<script type="text/javascript" src='js/flat.js'></script>
+	<style type="text/css">
+	body{
+		background:#fafafa;
+	}
+	</style>
+</head>
+<body>
+<canvas id="cube" style='position:absolute;left:15px;top:15px;'>HTML5 CANVAS</canvas> 
+<div id='controls'></div>
+<div id='flat-cube'></div>
+
+<script type="text/javascript">
+
+var solver = new RubiksCubeSolver();
+                          //UR BR UL BL DF FR DB FL UB UL DR DL DRF FUL FLD DBR UFR URB BDL BLU
+solver.setState("UR BR UL BL DF FR DB FL UB UF DR DL DRF FUL FLD DBR UFR URB BDL BLU");
+ console.log(solver.solve());
+console.log(solver.currentState);
+	
+</script>
+
+
+</html>

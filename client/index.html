@@ -25,9 +25,117 @@ body {
 		<canvas  class="center" style=z-index:1;" id="canvas-video" width="640" height="480"></canvas>
 		<canvas  class="center" style="z-index:2;" id="canvas-mark" width="640" height="480"></canvas>
 	</div>
+<p>
+<label>Serial Port:</label><select id="serialport" style="margin:0px 3px 0 0;"><option>/dev/ttyAMA0</option><option>/dev/ttyS0</option><option>/dev/ttyUSB0</option></select><button type="button" id="connectButton" class="btn btn-info" onclick="connectSerial();">
+        Connect
+      </button>
+</p>
+    <p><button type="button"  onclick="moveCube(1);">cube clockwise</button> <button type="button"  onclick="moveCube(-1);">cube count-clockwise</button></p>
+    <p><button type="button"  onclick="rotationCube(1);">rotate clockwise</button> <button type="button"  onclick="rotationCube(-1);">rotate count-clockwise</button></p>
+    <p><button type="button"  onclick="releaseCube(0);">lock</button><button type="button"  onclick="releaseCube(1);">release</button><button type="button"  onclick="flipCube(1);">flip</button></p>
+    <p><button type="button"  id="enableMotor" onclick="enableCube();">enable</button> <button type="button"  id="auto" onclick="getCubeState();">get cube</button></p>
 	<script src="jsmpg.js"></script>
 	<script type="text/javascript">
-		// CHANGE THIS TO THE APPROPRIATE WS ADDRESS
+        function connectSerial(){
+            if($("#connectButton").html().indexOf("Connect")>-1){
+                $("#connectButton").html("Disconnect");
+                $.post("/connect", {data: $("#serialport").val()}, function(result){
+                    console.log(result);
+                });
+            }else{
+                $("#connectButton").html("Connect");
+                $.post("/disconnect", {data: $("#serialport").val()}, function(result){
+                    console.log(result);
+                });
+            }
+        }
+        function enableCube(){
+            if($("#enableMotor").html().indexOf("enable")>-1){
+                $("#enableMotor").html("disable");
+                $.post("/enable", {state:1}, function(result){
+                    console.log(result);
+                });
+            }else{
+                $("#enableMotor").html("enable");
+                $.post("/enable", {state: 0}, function(result){
+                    console.log(result);
+                });
+            }
+        }
+        function moveCube(turns){
+            $.post("/move",{turns:turns},function(res){
+
+            });
+        }
+        function releaseCube(state){
+            $.post("/release",{state:state},function(res){
+                
+            });
+        }
+        function rotationCube(turns){
+            $.post("/rotate",{turns:turns},function(res){
+                
+            });
+        }
+        function flipCube(turns){
+            $.post("/flip",{turns:turns},function(res){
+                
+            });
+        }
+        function getCubeState(){
+            result = "";
+            t = 0;
+            var delay = 2000;
+            captureCube();
+            setTimeout(function(){
+                flipCube(1);
+                setTimeout(function(){
+                    captureCube();
+                    setTimeout(function(){
+                        flipCube(1);
+                        setTimeout(function(){
+                            captureCube();
+                            setTimeout(function(){
+                                flipCube(1);
+                                setTimeout(function(){
+                                    captureCube();
+                                    setTimeout(function(){
+                                        rotationCube(1);
+                                         setTimeout(function(){
+                                            flipCube(1);
+                                            setTimeout(function(){
+                                                captureCube();
+                                                setTimeout(function(){
+                                                    flipCube(2);
+                                                    setTimeout(function(){
+                                                        rotationCube(2);
+                                                        setTimeout(function(){
+                                                           releaseCube(0);
+                                                            setTimeout(function(){
+                                                                captureCube();
+                                                            },delay*2);
+                                                        },delay*2);
+                                                    },delay);
+                                                },delay*2);
+                                            },delay*2);
+                                        },500);
+                                    },500);
+                                },delay*2);
+                            },500);
+                        },delay*2);
+                    },500);
+                },delay*2);
+            },500);
+        }
+        $.post("/list",{},function(result){
+             var ports = result.split(",");
+            $("#serialport").empty();
+            for(var i in ports){
+                var op = $('<option></option>').attr('value',ports[i]).text(ports[i]);
+                $("#serialport").append(op);
+            }
+         });
+   		// CHANGE THIS TO THE APPROPRIATE WS ADDRESS
 		var domain = window.location.href.split("//")[1].split(":")[0];
 		var wsUrl = 'ws://'+domain+':8084/';
 
@@ -46,23 +154,23 @@ body {
         function checkColor(r,g,b){
             var m = Math.max(r,Math.max(g,b));
             if(Math.abs(r-g)<30&&r>150&&r>b+80){
-                return "L";//"yellow";            
+                return ["y","D"];//"yellow";            
             }else if(b>r&&b>g&&r<120){
-                return "U";//"blue";
+                return ["b","F"];//"blue";
             }else if(r>180&&g>180&&b>180){
-                return "R";//"white";
+                return ["w","U"];//"white";
             }else if(r>g&&r>b&&g>b&&g>30){
-                return "F";//"orange";
+                return ["o","R"];//"orange";
             }else if(r>g&&r>b){
-                return "B";//"red";
+                return ["r","L"];//"red";
             }else if(g>r&&g>b&&r<60){
-                return "D";//"green";
+                return ["g","B"];//"green";
             }else if(g==m){
-                return "D";
+                return ["r","B"];
             }else if(r==m){
-                return "B";
+                return ["r","L"];
             }else if(b==m){
-                return "U";
+                return ["b","F"];
             }
             console.log(r,g,b);
         }
@@ -72,11 +180,9 @@ body {
         }
         var t=0;
         var result = "";
-        $("#canvas-mark").click(function(){
+        function captureCube(){
             console.log("click");
-            var _cvs = document.getElementById('canvas-video');
-            var _ctx = _cvs.getContext('2d');
-            var data = _ctx.getImageData(0,0,640,480).data;
+            var data =player.currentRGBA.data;
             var len = rw*rw;
             for(var i=0;i<3;i++){
                 for(var j=0;j<3;j++){
@@ -92,19 +198,47 @@ body {
                     var r = _rgb[0]/len;
                     var g = _rgb[1]/len;
                     var b = _rgb[2]/len;
-                   result+=(checkColor(r,g,b)+"");
+                   result+=(checkColor(r,g,b)[1]+"");
                 }
             }
             t++;
             if(t>=6){
                 console.log(result);
+                var cubes = result.split("");
+                var states = [];
+                states.push(getFaceCube(cubes,"U",7)+getFaceCube(cubes,"F",1));
+                states.push(getFaceCube(cubes,"U",5)+getFaceCube(cubes,"R",3));
+                states.push(getFaceCube(cubes,"U",1)+getFaceCube(cubes,"B",7));
+                states.push(getFaceCube(cubes,"U",3)+getFaceCube(cubes,"L",5));
+                states.push(getFaceCube(cubes,"D",1)+getFaceCube(cubes,"F",7));
+                states.push(getFaceCube(cubes,"D",5)+getFaceCube(cubes,"R",5));
+                states.push(getFaceCube(cubes,"D",7)+getFaceCube(cubes,"B",1));
+                states.push(getFaceCube(cubes,"D",3)+getFaceCube(cubes,"L",3));
+                states.push(getFaceCube(cubes,"F",5)+getFaceCube(cubes,"R",7));
+                states.push(getFaceCube(cubes,"F",3)+getFaceCube(cubes,"L",7));
+                states.push(getFaceCube(cubes,"B",5)+getFaceCube(cubes,"R",1));
+                states.push(getFaceCube(cubes,"B",3)+getFaceCube(cubes,"L",1));
+                states.push(getFaceCube(cubes,"U",8)+getFaceCube(cubes,"F",2)+getFaceCube(cubes,"R",6));
+                states.push(getFaceCube(cubes,"U",2)+getFaceCube(cubes,"R",0)+getFaceCube(cubes,"B",8));
+                states.push(getFaceCube(cubes,"U",0)+getFaceCube(cubes,"B",6)+getFaceCube(cubes,"L",2));
+                states.push(getFaceCube(cubes,"U",6)+getFaceCube(cubes,"L",8)+getFaceCube(cubes,"F",0));
+                states.push(getFaceCube(cubes,"D",2)+getFaceCube(cubes,"R",8)+getFaceCube(cubes,"F",8));
+                states.push(getFaceCube(cubes,"D",0)+getFaceCube(cubes,"F",6)+getFaceCube(cubes,"L",6));
+                states.push(getFaceCube(cubes,"D",6)+getFaceCube(cubes,"L",0)+getFaceCube(cubes,"B",0));
+                states.push(getFaceCube(cubes,"D",8)+getFaceCube(cubes,"B",2)+getFaceCube(cubes,"R",2));
+                console.log(states.join(" "));
                 result = "";
                 t = 0;
             }
-        });
+        }
+        var faces = {U:0,B:1,D:2,F:3,L:4,R:5};
+        function getFaceCube(data,face,index){
+            return data[faces[face]*9+index];
+        }
+        $("#canvas-mark").click(captureCube);
 		// Start the player
 		var client = new WebSocket(wsUrl);
-		var player = new jsmpeg(client, { canvas:document.getElementById('canvas-video') });
+		var player = new jsmpeg(client, { forceCanvas2D:true,canvas:document.getElementById('canvas-video') });
 	</script>
 </body>
 </html>

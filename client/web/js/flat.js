@@ -401,9 +401,14 @@ var RubiksCubeControls = function(id, cube, width){
 	this.solveSlowButton = document.createElement('div');
 	this.solveSlowButton.appendChild(document.createTextNode('Solve Step'));
 	this.solveSlowButton.addEventListener('click', function(){
-		me.cube.getSolutionAsync(function(solution){me.setSolution(solution);},function(data){
-			setProgress(data);
-		});
+		me.cube.getSolutionAsync(
+            function(solution){
+                console.log(solution);
+                me.setSolution(solution);
+            },
+            function(data){
+    			setProgress(data);
+    		});
 	});
 
 	function setProgress(data){

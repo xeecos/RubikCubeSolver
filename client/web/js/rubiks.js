@@ -625,6 +625,7 @@ RubiksCube.prototype.solve = function(progress) {
 
 RubiksCube.prototype.getSolutionAsync = function(callback, progress) {
 	if(this.isSolvable()){
+        console.log(this.getState());
 		this.solver.solveAsync(this.getState(), callback, progress);
 	}
 	callback('');
@@ -636,7 +637,9 @@ RubiksCube.prototype.getSolution = function() {
 	}
 	return '';
 }
-
+RubiksCube.prototype.getCustomSolution = function(state) {
+	return this.solver.solve(state);
+}
 RubiksCube.prototype.isSolvable = function(){
 	return !this.rotating && this.solver.setState(this.getState());
 }
@@ -1059,7 +1062,6 @@ RubiksCube.prototype.getState = function(){
 	this.faceNames.forEach(function(face){
 		colorToFace[me.getFaceColor(face)] = face;
 	});
-	
 	cubicles.forEach(function(cubicle){
 		var c = me.getCubie(cubicle);
 		var cubieName = "";

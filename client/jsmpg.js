@@ -588,7 +588,7 @@ jsmpeg.prototype.currentCr = null;
 jsmpeg.prototype.currentCb = null;
 
 jsmpeg.prototype.currentRGBA = null;
-
+jsmpeg.prototype.currentRGBA2 = null;
 jsmpeg.prototype.pictureCodingType = 0;
 
 // Buffers for motion compensation
