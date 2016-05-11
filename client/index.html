@@ -160,7 +160,7 @@ body {
                         },500);
                     },delay*2);
                 },500);
-            },delay*2);
+            },delay);
         }
         $.post("/list",{},function(result){
              var ports = result.split(",");
@@ -177,30 +177,32 @@ body {
 		// Show loading notice
 		var canvas = document.getElementById('canvas-mark');
 		var ctx = canvas.getContext('2d');
-        var sx = 170;
-        var sy = 175;
-        var dw = 95;
+        var sx = 245;
+        var sy = 125;
+        var dw = 120;
         var rw = 20;
         for(var i=0;i<3;i++){
             for(var j=0;j<3;j++){
 	        	ctx.strokeRect(sx+i*dw,sy+j*dw,rw,rw);
             }
         }
-        function checkColor(r,g,b){
-            //console.log(r,g,b);
+        function checkColor(r,g,b,debug){
+            if(debug)
+                console.log(r,g,b);
+            b-=20;
             var c_max = Math.max(r,Math.max(g,b));
             var c_min = Math.min(r,Math.min(g,b));
-            if(r-g<30&&c_min==b&&r-b>50){
+            if(r>160&&g>160&&b<160){
                 return ["y","D"];//"yellow";            
-            }else if(b-r>50&&b-g>50){
+            }else if(b-r>50&&b-g>50&&b==c_max){
                 return ["b","F"];//"blue";
-            }else if(r>150&&g>150&&b>150){
+            }else if(r>120&&g>120&&b>120){
                 return ["w","U"];//"white";
-            }else if(r/c_min>2&&g>50&&c_min==b){
+            }else if(r>130&&g>70){
                 return ["o","R"];//"orange";
-            }else if(r-g>50&&r-b>50&&Math.abs(g-b)<30){
+            }else if(r>130&&g<90){
                 return ["r","L"];//"red";
-            }else if(g-r>50){
+            }else if(g-r>50&&g==c_max){
                 return ["g","B"];//"green";
             }else if(g==c_max){
                 return ["r","B"];
@@ -216,11 +218,13 @@ body {
         }
         var t=0;
         var result = "";
-        function captureCube(){
+        function captureCube(debug){
             console.log("click");
             var data =player.currentRGBA.data;
+            
             var len = rw*rw;
             for(var i=0;i<3;i++){
+                var row = "";
                 for(var j=0;j<3;j++){
                     var _rgb = [0,0,0];
 	            	for(var k=0;k<rw;k++){
@@ -234,8 +238,11 @@ body {
                     var r = _rgb[0]/len;
                     var g = _rgb[1]/len;
                     var b = _rgb[2]/len;
-                   result+=(checkColor(r,g,b)[1]+"");
+                    var cc = checkColor(r,g,b,debug);
+                   result+=(cc[1]+"");
+                    row+=cc[0]+" ";
                 }
+                console.log(row);
             }
             t++;
             if(t>=6){
@@ -276,7 +283,7 @@ body {
                         console.log("starting solve");
                         $.post("/code",{code:codes},function(res){
                         });
-                    },5000);
+                    },7000);
                 }else{
                     console.log("solve fail!!!!");            
                 }
@@ -288,7 +295,9 @@ body {
         function getFaceCube(data,face,index){
             return data[faces[face]*9+index];
         }
-        //debug $("#canvas-mark").click(captureCube);
+        $("#canvas-mark").click(function(){
+            captureCube(true);
+        });
 		// Start the player
 		var client = new WebSocket(wsUrl);
 		var player = new jsmpeg(client, { forceCanvas2D:true,canvas:document.getElementById('canvas-video') });

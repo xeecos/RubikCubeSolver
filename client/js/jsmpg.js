@@ -573,6 +573,7 @@ jsmpeg.prototype.initBuffers = function() {
 	}
 	else {
 		this.currentRGBA = this.canvasContext.getImageData(0, 0, this.width, this.height);
+       
 		this.fillArray(this.currentRGBA.data, 255);
 	}
 };
@@ -588,7 +589,6 @@ jsmpeg.prototype.currentCr = null;
 jsmpeg.prototype.currentCb = null;
 
 jsmpeg.prototype.currentRGBA = null;
-jsmpeg.prototype.currentRGBA2 = null;
 jsmpeg.prototype.pictureCodingType = 0;
 
 // Buffers for motion compensation
@@ -747,6 +747,31 @@ jsmpeg.prototype.YCbCrToRGBA = function() {
 
 jsmpeg.prototype.renderFrame2D = function() {
 	this.YCbCrToRGBA();
+     /*var pixelNum = this.currentRGBA.data.length;
+			//initialize brightness for levels
+			var redMax = 0; 
+			var redMin = 255;
+			var greenMax = 0; 
+			var greenMin = 255;
+			var blueMax = 0; 
+			var blueMin = 255;
+
+			for(var i = 0; i < pixelNum; i += 4){
+				//set min and max values for each color
+				if (this.currentRGBA.data[i] > redMax) { redMax = this.currentRGBA.data[i] };
+				if (this.currentRGBA.data[i] < redMin) { redMin = this.currentRGBA.data[i] };
+				if (this.currentRGBA.data[i+1] > greenMax) { greenMax = this.currentRGBA.data[i+1] };
+				if (this.currentRGBA.data[i+1] < greenMin) { greenMin = this.currentRGBA.data[i+1] };
+				if (this.currentRGBA.data[i+2] > blueMax) { blueMax = this.currentRGBA.data[i+2] };
+				if (this.currentRGBA.data[i+2] < blueMin) { blueMin = this.currentRGBA.data[i+2] };
+			}
+
+			for(var i = 0; i < pixelNum; i += 4){
+				//map colors to 0 - 255 range
+				this.currentRGBA.data[i] = (this.currentRGBA.data[i] - redMin) * (265 / (redMax - redMin));
+				this.currentRGBA.data[i+1] = (this.currentRGBA.data[i+1] - greenMin) * (265 / (greenMax - greenMin));
+				this.currentRGBA.data[i+2] =  (this.currentRGBA.data[i+2] - blueMin) * (265 / (blueMax - blueMin));
+			}*/
 	this.canvasContext.putImageData(this.currentRGBA, 0, 0);
 };
 
