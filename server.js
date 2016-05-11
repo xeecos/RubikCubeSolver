@@ -28,7 +28,17 @@ require('./lib/routes').serveIndex(app, configServer.staticFolder);
 http.createServer(app).listen(app.get('port'), function () {
   console.log('HTTP server listening on port ' + app.get('port'));
 });
-
+var commands = [];
+function nextCommand(){
+  if(commands.length>0){
+    serialPort.write( commands.shift()+"\n");
+  }
+}
+app.post("/code",function(req,res){
+    commands = req.body.code.split("\n");
+    nextCommand();
+    res.send("ok");
+});
 app.post("/move",function(req,res){
     serialPort.write( "m2 t"+req.body.turns+"\n");
     res.send("ok");
@@ -59,6 +69,7 @@ app.post('/connect',(req,res) => {
       serialPort.on('data', function (data) {
         _buffers += data.toString().toLowerCase();
         if(_buffers.indexOf('ok')>-1){
+            nextCommand();
             _buffers = "";
         }
       });

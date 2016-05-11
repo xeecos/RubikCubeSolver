@@ -17,7 +17,9 @@ body {
 }
 </style>
 	
-	<script src="jquery-1.12.3.min.js"></script>
+	<script src="js/jquery-1.12.3.min.js"></script>
+	<script type="text/javascript" src='js/solver.js'></script>
+	<script src="js/jsmpg.js"></script>
 </head>
 <body>
 
@@ -34,8 +36,26 @@ body {
     <p><button type="button"  onclick="rotationCube(1);">rotate clockwise</button> <button type="button"  onclick="rotationCube(-1);">rotate count-clockwise</button></p>
     <p><button type="button"  onclick="releaseCube(0);">lock</button><button type="button"  onclick="releaseCube(1);">release</button><button type="button"  onclick="flipCube(1);">flip</button></p>
     <p><button type="button"  id="enableMotor" onclick="enableCube();">enable</button> <button type="button"  id="auto" onclick="getCubeState();">get cube</button></p>
-	<script src="jsmpg.js"></script>
 	<script type="text/javascript">
+        var commands = {};
+        commands["U"]="m3 t2\nm2 t-1\nm3 t2\n";
+        commands["U'"]="m3 t2\nm2 t1\nm3 t2\n";
+        commands["F"]="m3 t1\nm2 t-1\nm3 t3\n";
+        commands["F'"]="m3 t1\nm2 t1\nm3 t3\n";
+        commands["D"]="m2 t-1\n";
+        commands["D'"]="m2 t1\n";
+        commands["B"]="m3 t3\nm2 t-1\nm3 t1\n";
+        commands["B'"]="m3 t3\nm2 t1\nm3 t1\n";
+        commands["L"]="m1 t1\nm3 t3\nm2 t-1\nm3 t1\nm1 t-1\n";
+        commands["L'"]="m1 t1\nm3 t3\nm2 t1\nm3 t1\nm1 t-1\n";
+        commands["R"]="m1 t-1\nm3 t3\nm2 t-1\nm3 t1\nm1 t1\n";
+        commands["R'"]="m1 t-1\nm3 t3\nm2 t1\nm3 t1\nm1 t1\n";
+        commands["U2"]="m3 t2\nm2 t-2\nm3 t2\n";
+        commands["F2"]="m3 t1\nm2 t-2\nm3 t3\n";
+        commands["D2"]="m2 t-2\n";
+        commands["B2"]="m3 t3\nm2 t-2\nm3 t1\n";
+        commands["L2"]="m1 t1\nm3 t3\nm2 t-2\nm3 t1\nm1 t-1\n";
+        commands["R2"]="m1 t-1\nm3 t3\nm2 t-2\nm3 t1\nm1 t1\n";
         function connectSerial(){
             if($("#connectButton").html().indexOf("Connect")>-1){
                 $("#connectButton").html("Disconnect");
@@ -86,46 +106,61 @@ body {
             result = "";
             t = 0;
             var delay = 2000;
-            captureCube();
+            releaseCube(0);
             setTimeout(function(){
-                flipCube(1);
+                captureCube();
                 setTimeout(function(){
-                    captureCube();
+                    flipCube(1);
                     setTimeout(function(){
-                        flipCube(1);
+                        captureCube();
                         setTimeout(function(){
-                            captureCube();
+                            flipCube(1);
                             setTimeout(function(){
-                                flipCube(1);
+                                captureCube();
                                 setTimeout(function(){
-                                    captureCube();
+                                    flipCube(1);
                                     setTimeout(function(){
-                                        rotationCube(1);
-                                         setTimeout(function(){
-                                            flipCube(1);
-                                            setTimeout(function(){
-                                                captureCube();
+                                        captureCube();
+                                        setTimeout(function(){
+                                            rotationCube(1);
+                                             setTimeout(function(){
+                                                flipCube(1);
                                                 setTimeout(function(){
-                                                    flipCube(2);
+                                                    captureCube();
                                                     setTimeout(function(){
-                                                        rotationCube(2);
+                                                        flipCube(2);
                                                         setTimeout(function(){
-                                                           releaseCube(0);
+                                                            rotationCube(2);
                                                             setTimeout(function(){
-                                                                captureCube();
+                                                               releaseCube(0);
+                                                                setTimeout(function(){
+                                                                    captureCube();
+                                                                    setTimeout(function(){
+                                                                        rotationCube(1);
+                                                                        setTimeout(function(){
+                                                                            flipCube(1);
+                                                                            setTimeout(function(){
+                                                                                rotationCube(-1);
+                                                                                setTimeout(function(){
+                                                                                    releaseCube(0);
+                                                                                },delay);
+                                                                            },delay);
+                                                                        },delay);
+                                                                    },500);
+                                                                },delay*2);
                                                             },delay*2);
-                                                        },delay*2);
+                                                        },delay);
                                                     },delay);
                                                 },delay*2);
-                                            },delay*2);
+                                            },500);
                                         },500);
-                                    },500);
-                                },delay*2);
-                            },500);
-                        },delay*2);
-                    },500);
-                },delay*2);
-            },500);
+                                    },delay*2);
+                                },500);
+                            },delay*2);
+                        },500);
+                    },delay*2);
+                },500);
+            },delay*2);
         }
         $.post("/list",{},function(result){
              var ports = result.split(",");
@@ -144,35 +179,36 @@ body {
 		var ctx = canvas.getContext('2d');
         var sx = 170;
         var sy = 175;
-        var dw = 100;
-        var rw = 10;
+        var dw = 95;
+        var rw = 20;
         for(var i=0;i<3;i++){
             for(var j=0;j<3;j++){
 	        	ctx.strokeRect(sx+i*dw,sy+j*dw,rw,rw);
             }
         }
         function checkColor(r,g,b){
-            var m = Math.max(r,Math.max(g,b));
-            if(Math.abs(r-g)<30&&r>150&&r>b+80){
+            //console.log(r,g,b);
+            var c_max = Math.max(r,Math.max(g,b));
+            var c_min = Math.min(r,Math.min(g,b));
+            if(r-g<30&&c_min==b&&r-b>50){
                 return ["y","D"];//"yellow";            
-            }else if(b>r&&b>g&&r<120){
+            }else if(b-r>50&&b-g>50){
                 return ["b","F"];//"blue";
-            }else if(r>180&&g>180&&b>180){
+            }else if(r>150&&g>150&&b>150){
                 return ["w","U"];//"white";
-            }else if(r>g&&r>b&&g>b&&g>30){
+            }else if(r/c_min>2&&g>50&&c_min==b){
                 return ["o","R"];//"orange";
-            }else if(r>g&&r>b){
+            }else if(r-g>50&&r-b>50&&Math.abs(g-b)<30){
                 return ["r","L"];//"red";
-            }else if(g>r&&g>b&&r<60){
+            }else if(g-r>50){
                 return ["g","B"];//"green";
-            }else if(g==m){
+            }else if(g==c_max){
                 return ["r","B"];
-            }else if(r==m){
+            }else if(r==c_max){
                 return ["r","L"];
-            }else if(b==m){
+            }else if(b==c_max){
                 return ["b","F"];
             }
-            console.log(r,g,b);
         }
         function getPixel(x,y,data){
             var i = (y*640+x)*4;
@@ -227,6 +263,23 @@ body {
                 states.push(getFaceCube(cubes,"D",6)+getFaceCube(cubes,"L",0)+getFaceCube(cubes,"B",0));
                 states.push(getFaceCube(cubes,"D",8)+getFaceCube(cubes,"B",2)+getFaceCube(cubes,"R",2));
                 console.log(states.join(" "));
+                var solver = new RubiksCubeSolver();
+                solver.setState(states.join(" "));
+                var output = solver.solve();
+                if(output!=false){
+                    var list = output.split(" ");
+                    var codes = "";
+                    for(var i=0;i<list.length;i++){
+                        codes+=commands[list[i]];
+                    }
+                    setTimeout(function(){
+                        console.log("starting solve");
+                        $.post("/code",{code:codes},function(res){
+                        });
+                    },5000);
+                }else{
+                    console.log("solve fail!!!!");            
+                }
                 result = "";
                 t = 0;
             }
@@ -235,7 +288,7 @@ body {
         function getFaceCube(data,face,index){
             return data[faces[face]*9+index];
         }
-        $("#canvas-mark").click(captureCube);
+        //debug $("#canvas-mark").click(captureCube);
 		// Start the player
 		var client = new WebSocket(wsUrl);
 		var player = new jsmpeg(client, { forceCanvas2D:true,canvas:document.getElementById('canvas-video') });
