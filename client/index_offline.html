@@ -20,6 +20,8 @@ body {
 	<script src="js/jquery-1.12.3.min.js"></script>
 	<script type="text/javascript" src='js/solver.js'></script>
 	<script src="js/jsmpg.js"></script>
+    
+    <script src="js/socket.io.js"></script> 
 </head>
 <body>
 
@@ -177,13 +179,13 @@ body {
 		// Show loading notice
 		var canvas = document.getElementById('canvas-mark');
 		var ctx = canvas.getContext('2d');
-        var sx = 190;
-        var sy = 65;
-        var dw = 130;
-        var rw = 20;
+        var sx = 50;
+        var sy = 30;
+        var dw = 69;
+        var rw = 6;
         for(var i=0;i<3;i++){
             for(var j=0;j<3;j++){
-	        	ctx.strokeRect(sx+i*dw,sy+j*dw,rw,rw);
+	        	ctx.strokeRect(sx+i*(dw),sy+j*dw,rw,rw);
             }
         }
         function checkColor(r,g,b,debug){
@@ -299,8 +301,20 @@ body {
             captureCube(true);
         });
 		// Start the player
-		var client = new WebSocket(wsUrl);
-		var player = new jsmpeg(client, { forceCanvas2D:true,canvas:document.getElementById('canvas-video') });
+        socket = io("http://localhost:8080");
+        var canvas = document.getElementById("canvas-video");
+        var ctx = canvas.getContext("2d");
+
+        var image = new Image();
+        image.onload = function() {
+            ctx.drawImage(image, 0, 0, 240, 240);
+        };
+
+        socket.on('frame', function (frame) {
+            image.src = "data:image/bmp;base64," + frame;
+        });
+		//var client = new WebSocket(wsUrl);
+		//var player = new jsmpeg(client, { forceCanvas2D:true,canvas:document.getElementById('canvas-video') });
 	</script>
 </body>
 </html>
