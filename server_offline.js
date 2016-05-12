@@ -266,7 +266,7 @@ function captureCube(){
     var sx = 50;
     var sy = 30;
     var dw = 69;
-    var rw = 6;
+    var rw = 10;
     var len = rw*rw;
     for(var i=0;i<3;i++){
         var row = "";
@@ -342,13 +342,13 @@ function checkColor(r,g,b,debug){
     b-=20;
     var c_max = Math.max(r,Math.max(g,b));
     var c_min = Math.min(r,Math.min(g,b));
-    if(r>200&&g>150&&b<60){
+    if(r>200&&g>180&&b<50){
         return ["y","D"];//"yellow";            
     }else if(b-r>50&&b-g>50&&b==c_max){
         return ["b","F"];//"blue";
     }else if(r>170&&g>170&&b>170){
         return ["w","U"];//"white";
-    }else if(r>180&&g>80&&g<190){
+    }else if(r>180&&g>90&&g<200){
         return ["o","R"];//"orange";
     }else if(r>130&&g<90&&b<50){
         return ["r","L"];//"red";
