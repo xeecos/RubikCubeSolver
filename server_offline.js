@@ -8,7 +8,7 @@ var SerialPort = Serial.SerialPort;
 var serialPort;
 var cam = require('linuxcam');
 var bmp = require("bmp-js");
-var inkjet = require("inkjet");
+var gd = require("node-gd");
 
 var RubiksCubeSolver = require("./lib/solver");
 var frameWidth = 240;
@@ -251,19 +251,16 @@ function captureCube(){
     var rgba = new Buffer(frameWidth*frameHeight*4);
     for(var i=0;i<imageFrame.height;i++){
         for(var j=0;j<imageFrame.width;j++){
-            rgba[i*frameWidth+j]=(pixels[(i*imageFrame.width+j)*3]);
-            rgba[i*frameWidth+j]=(pixels[(i*imageFrame.width+j)*3+1]);
-            rgba[i*frameWidth+j]=(pixels[(i*imageFrame.width+j)*3+2]);
-            rgba[i*frameWidth+j]=(255);
+            rgba[(i*imageFrame.width+j)*4]=(pixels[(i*imageFrame.width+j)*3]);
+            rgba[(i*imageFrame.width+j)*4+1]=(pixels[(i*imageFrame.width+j)*3+1]);
+            rgba[(i*imageFrame.width+j)*4+2]=(pixels[(i*imageFrame.width+j)*3+2]);
+            rgba[(i*imageFrame.width+j)*4+3]=(255);
         }
     }
-   //var rawData = bmp.encode({data:rgba,width:imageFrame.width,height:imageFrame.height});
+   var rawData = bmp.encode({data:rgba,width:imageFrame.width,height:imageFrame.height});
     //console.log(faceIndex);
-    inkjet.encode(rgba,{width:frameWidth,height:frameHeight,quality:80},function(err, encoded){
-        console.log(encoded.data[0],encoded.data[1]);
-        fs.writeFile("face"+faceIndex+".jpg",encoded.data,(err)=>{
-            //console.log(err);
-        });
+    gd.createFromBmpPtr(rawData.data).saveJpeg("faces/"+(faceIndex+1)+".jpg",function(err){
+        console.log(err);
     });
     
     var sx = 50;
@@ -345,7 +342,7 @@ function checkColor(r,g,b,debug){
     b-=20;
     var c_max = Math.max(r,Math.max(g,b));
     var c_min = Math.min(r,Math.min(g,b));
-    if(r>180&&g>190&&b<60){
+    if(r>200&&g>150&&b<60){
         return ["y","D"];//"yellow";            
     }else if(b-r>50&&b-g>50&&b==c_max){
         return ["b","F"];//"blue";
