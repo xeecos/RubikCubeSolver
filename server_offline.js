@@ -13,10 +13,15 @@ var gd = require("node-gd");
 var RubiksCubeSolver = require("./lib/solver");
 var frameWidth = 240;
 var frameHeight = 240;
-try{
-    cam.start("/dev/video0", frameWidth, frameHeight);
-}catch(err){
-}
+fs.access('/dev/video0',function(err){
+    if(err==null){
+        cam.start("/dev/video0", frameWidth, frameHeight);
+        childProcess.exec('./bin/do_camera.sh 0');
+    }else{
+        cam.start("/dev/video1", frameWidth, frameHeight);
+        childProcess.exec('./bin/do_camera.sh 1');
+    }
+});
 // configuration files
 var configServer = require('./lib/config/server');
 
@@ -39,9 +44,12 @@ function nextCommand(){
   if(commands.length>0){
     isMoving = true;
     serialPort.write( commands.shift()+"\n");
-    if(commands.length==1){    
-      isMoving = false; 
-      stateIndex = 0;
+    if(commands.length<2){    
+      setTimeout(function(){
+        serialPort.write( "m4 t0\n");
+        isMoving = false; 
+        stateIndex = 0;
+      }, 5000);
     }
   }else{
   }
@@ -338,6 +346,7 @@ function captureCube(){
             for(var i=0;i<list.length;i++){
                 codes+=commandsAction[list[i]];
             }
+            codes = codes.substr(0,codes.length-1);
              console.log("starting solve");
             setTimeout(function(){
                 commands = codes.split("\n");       
@@ -390,5 +399,4 @@ function getFaceCube(data,face,index){
     return data[faces[face]*9+index];
 }
 connectSerial('/dev/ttyS0');
-childProcess.exec('./bin/do_camera.sh');
 module.exports.app = app;
