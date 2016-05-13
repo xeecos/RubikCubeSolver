@@ -13,15 +13,8 @@ var gd = require("node-gd");
 var RubiksCubeSolver = require("./lib/solver");
 var frameWidth = 240;
 var frameHeight = 240;
-fs.access('/dev/video0',function(err){
-    if(err==null){
-        cam.start("/dev/video0", frameWidth, frameHeight);
-        childProcess.exec('./bin/do_camera.sh 0');
-    }else{
-        cam.start("/dev/video1", frameWidth, frameHeight);
-        childProcess.exec('./bin/do_camera.sh 1');
-    }
-});
+var path = "/home/pi/RubikCubeSolver";
+
 // configuration files
 var configServer = require('./lib/config/server');
 
@@ -43,13 +36,13 @@ var isMoving = false;
 function nextCommand(){
   if(commands.length>0){
     isMoving = true;
-    serialPort.write( commands.shift()+"\n");
-    if(commands.length<2){    
-      setTimeout(function(){
-        serialPort.write( "m4 t0\n");
-        isMoving = false; 
-        stateIndex = 0;
-      }, 5000);
+    sendCommand( commands.shift());
+    if(commands.length==0){    
+       setTimeout(function(){
+         sendCommand( "m4 t0");
+         isMoving = false; 
+         stateIndex = 0;
+       }, 5000);
     }
   }else{
   }
@@ -81,6 +74,13 @@ app.post("/enable",function(req,res){
     res.send("ok");
 });
 var  _buffers = "";
+fs.access('/dev/video0',function(err){
+    if(err==null){
+        cam.start("/dev/video0", frameWidth, frameHeight);
+    }else{
+        cam.start("/dev/video1", frameWidth, frameHeight);
+    }
+});
 function connectSerial(port){
     serialPort = new SerialPort(port, {baudrate: 115200});
     serialPort.on('open', function () {
@@ -93,8 +93,20 @@ function connectSerial(port){
         }
         if(_buffers.indexOf('start')>-1){
             if(!isMoving){
-                serialPort.write( "m4 t1\n");
-                setTimeout(getCubeState,1000);
+                fs.access('/dev/video0',function(err){
+                    if(err==null){
+                        childProcess.exec(path+'/bin/do_camera.sh 0');
+                    }else{
+                        childProcess.exec(path+'/bin/do_camera.sh 1');
+                    }
+                });
+                sendCommand( "m4 t1");
+                sendCommand( "m4 t1");
+                stateIndex = 0; 
+                cubesResult = "";
+                faceIndex = 0;
+                isMoving = true;
+                setTimeout(getCubeState,500);
             }
             _buffers = "";
         }
@@ -155,7 +167,6 @@ http.listen(app.get('port'), function () {
 });
 function sendCommand(cmd){
     try{
-        console.log(cmd);
         serialPort.write(cmd+"\n");
     }catch(err){
         console.log(err);
@@ -197,10 +208,9 @@ var faceIndex = 0;
 var stateIndex = 0;
 console.log("starting!!!!");
 function getCubeState(){
-    var delay = 3600;
+    var delay = 3500;
     stateIndex++;
     if(stateIndex<22){
-        isMoving = true;
         if(stateIndex==1){
             releaseCube(0);
         }else if(stateIndex==2){
@@ -281,7 +291,7 @@ function captureCube(){
     }
    var rawData = bmp.encode({data:rgba,width:imageFrame.width,height:imageFrame.height});
     //console.log(faceIndex);
-    gd.createFromBmpPtr(rawData.data).saveJpeg("faces/"+(faceIndex+1)+".jpg",function(err){
+    gd.createFromBmpPtr(rawData.data).saveJpeg(path+"/faces/"+(faceIndex+1)+".jpg",function(err){
         console.log(err);
     });
     
@@ -290,8 +300,8 @@ function captureCube(){
     var dw = 69;
     var rw = 10;
     var len = rw*rw;
+    var row = "";
     for(var i=0;i<3;i++){
-        var row = "";
         for(var j=0;j<3;j++){
             var _rgb = [0,0,0];
         	for(var k=0;k<rw;k++){
@@ -309,8 +319,9 @@ function captureCube(){
            cubesResult+=(cc[1]+"");
             row+=cc[0]+" ";
         }
-        console.log(row);
+            row+="\n";
     }
+    console.log(row);
     faceIndex++;
     if(faceIndex>=6){
         console.log(cubesResult);
@@ -355,9 +366,8 @@ function captureCube(){
         }else{
             console.log("solve fail!!!!");            
             setTimeout(function(){
-                serialPort.write( "m4 t0\n");
-                isMoving = false; 
-                stateIndex = 0;
+                sendCommand( "m4 t0");
+                isMoving = false;
             }, 5000);
         }
         cubesResult = "";
@@ -365,29 +375,30 @@ function captureCube(){
     }
 }
 function checkColor(r,g,b,debug){
-    if(debug)
-        console.log(Math.floor(r),Math.floor(g),Math.floor(b));
-    b-=20;
+    r = Math.floor(r);
+    g = Math.floor(g);
+    b = Math.floor(b);
     var c_max = Math.max(r,Math.max(g,b));
     var c_min = Math.min(r,Math.min(g,b));
-    if(r>200&&g>180&&b<50){
+    r = Math.floor(r-c_min);
+    g = Math.floor(g-c_min);
+    b = Math.floor(b-c_min);
+    if(debug)
+        console.log(r,g,b);
+     if(r>g&&r>150&&g>100&&b==0){
         return ["y","D"];//"yellow";            
-    }else if(b-r>50&&b-g>50&&b==c_max){
+    }else if(r==0&&b>150&&Math.abs(g-b)>50){
         return ["b","F"];//"blue";
-    }else if(r>170&&g>170&&b>170){
+    }else if(r<80&&g<80&&b<80){
         return ["w","U"];//"white";
-    }else if(r>180&&g>90&&g<200){
+    }else if((r>170&&g>10&&b<20)||(r<170&&r>100&&g<20&&b<20)){
         return ["o","R"];//"orange";
-    }else if(r>130&&g<90&&b<50){
+    }else if(r>150){
         return ["r","L"];//"red";
-    }else if(g-r>50&&g==c_max){
+    }else if(r==0&&Math.abs(g-b)<50){
         return ["g","B"];//"green";
-    }else if(g==c_max){
-        return ["r","B"];
-    }else if(r==c_max){
-        return ["r","L"];
-    }else if(b==c_max){
-        return ["b","F"];
+    }else{
+        return ["o","R"];
     }
 }
 function getPixel(x,y,pixels){
@@ -398,5 +409,7 @@ var faces = {U:0,B:1,D:2,F:3,L:4,R:5};
 function getFaceCube(data,face,index){
     return data[faces[face]*9+index];
 }
-connectSerial('/dev/ttyS0');
+setTimeout(function(){
+        connectSerial('/dev/ttyS0');
+    },2000);
 module.exports.app = app;
