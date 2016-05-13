@@ -34,9 +34,16 @@ app.use(morgan('dev'));
 require('./lib/routes').serveIndex(app, configServer.staticFolder);
 
 var commands = [];
+var isMoving = false;
 function nextCommand(){
   if(commands.length>0){
+    isMoving = true;
     serialPort.write( commands.shift()+"\n");
+    if(commands.length==1){    
+      isMoving = false; 
+      stateIndex = 0;
+    }
+  }else{
   }
 }
 app.post("/code",function(req,res){
@@ -70,11 +77,17 @@ function connectSerial(port){
     serialPort = new SerialPort(port, {baudrate: 115200});
     serialPort.on('open', function () {
       console.log('serial opened!');
-       serialPort.write( "m4 t1\n");
       serialPort.on('data', function (data) {
         _buffers += data.toString().toLowerCase();
         if(_buffers.indexOf('ok')>-1){
             nextCommand();
+            _buffers = "";
+        }
+        if(_buffers.indexOf('start')>-1){
+            if(!isMoving){
+                serialPort.write( "m4 t1\n");
+                setTimeout(getCubeState,1000);
+            }
             _buffers = "";
         }
       });
@@ -179,6 +192,7 @@ function getCubeState(){
     var delay = 3600;
     stateIndex++;
     if(stateIndex<22){
+        isMoving = true;
         if(stateIndex==1){
             releaseCube(0);
         }else if(stateIndex==2){
@@ -331,6 +345,11 @@ function captureCube(){
             }, 5000);
         }else{
             console.log("solve fail!!!!");            
+            setTimeout(function(){
+                serialPort.write( "m4 t0\n");
+                isMoving = false; 
+                stateIndex = 0;
+            }, 5000);
         }
         cubesResult = "";
         faceIndex = 0;
@@ -371,6 +390,5 @@ function getFaceCube(data,face,index){
     return data[faces[face]*9+index];
 }
 connectSerial('/dev/ttyS0');
-  childProcess.exec('./bin/do_camera.sh');
-setTimeout(getCubeState,2000);
+childProcess.exec('./bin/do_camera.sh');
 module.exports.app = app;
