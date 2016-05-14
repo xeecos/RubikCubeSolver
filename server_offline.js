@@ -11,8 +11,8 @@ var bmp = require("bmp-js");
 var gd = require("node-gd");
 
 var RubiksCubeSolver = require("./lib/solver");
-var frameWidth = 240;
-var frameHeight = 240;
+var frameWidth = 640;
+var frameHeight = 480;
 var path = "/home/pi/RubikCubeSolver";
 
 // configuration files
@@ -81,6 +81,25 @@ fs.access('/dev/video0',function(err){
         cam.start("/dev/video1", frameWidth, frameHeight);
     }
 });
+function startSolver(){
+   if(!isMoving){
+      fs.access('/dev/video0',function(err){
+          if(err==null){
+              childProcess.exec(path+'/bin/do_camera.sh 0');
+          }else{
+              childProcess.exec(path+'/bin/do_camera.sh 1');
+          }
+      });
+      sendCommand( "m4 t1");
+      sendCommand( "m4 t1");
+      stateIndex = 0; 
+      cubesResult = "";
+      faceIndex = 0;
+      isMoving = true;
+      setTimeout(getCubeState,500);
+  }
+  _buffers = "";
+}
 function connectSerial(port){
     serialPort = new SerialPort(port, {baudrate: 115200});
     serialPort.on('open', function () {
@@ -92,23 +111,7 @@ function connectSerial(port){
             _buffers = "";
         }
         if(_buffers.indexOf('start')>-1){
-            if(!isMoving){
-                fs.access('/dev/video0',function(err){
-                    if(err==null){
-                        childProcess.exec(path+'/bin/do_camera.sh 0');
-                    }else{
-                        childProcess.exec(path+'/bin/do_camera.sh 1');
-                    }
-                });
-                sendCommand( "m4 t1");
-                sendCommand( "m4 t1");
-                stateIndex = 0; 
-                cubesResult = "";
-                faceIndex = 0;
-                isMoving = true;
-                setTimeout(getCubeState,500);
-            }
-            _buffers = "";
+           startSolver();
         }
       });
     });
@@ -208,7 +211,7 @@ var faceIndex = 0;
 var stateIndex = 0;
 console.log("starting!!!!");
 function getCubeState(){
-    var delay = 3500;
+    var delay = 1000;
     stateIndex++;
     if(stateIndex<22){
         if(stateIndex==1){
@@ -259,7 +262,7 @@ function getCubeState(){
             delay=100;
         }else if(stateIndex==18){
             rotationCube(1);
-            delay=500;
+            delay=2000;
         }else if(stateIndex==19){
             flipCube(1);
             delay=2000;
@@ -295,9 +298,9 @@ function captureCube(){
         console.log(err);
     });
     
-    var sx = 50;
-    var sy = 30;
-    var dw = 69;
+    var sx = 215;
+    var sy = 120;
+    var dw = 118;
     var rw = 10;
     var len = rw*rw;
     var row = "";
@@ -385,17 +388,17 @@ function checkColor(r,g,b,debug){
     b = Math.floor(b-c_min);
     if(debug)
         console.log(r,g,b);
-     if(r>g&&r>150&&g>100&&b==0){
+     if((r>210&&g>210&&Math.abs(r-g)<20&&b<50)||(Math.abs(r-g)<20&&r>150)){
         return ["y","D"];//"yellow";            
-    }else if(r==0&&b>150&&Math.abs(g-b)>50){
+    }else if(r<50&&b>g&&b>20){
         return ["b","F"];//"blue";
-    }else if(r<80&&g<80&&b<80){
+    }else if(r<30&&g<30&&b<30){
         return ["w","U"];//"white";
-    }else if((r>170&&g>10&&b<20)||(r<170&&r>100&&g<20&&b<20)){
+    }else if((r>200&&g<200&&g>150&&b<50)){
         return ["o","R"];//"orange";
-    }else if(r>150){
+    }else if(r>150&&g<50&&b<50){
         return ["r","L"];//"red";
-    }else if(r==0&&Math.abs(g-b)<50){
+    }else if(r<50&&g>=b&&g>20){
         return ["g","B"];//"green";
     }else{
         return ["o","R"];
@@ -405,11 +408,12 @@ function getPixel(x,y,pixels){
     var i = (y*frameWidth+x)*3;
     return [pixels[i],pixels[i+1],pixels[i+2]];
 }
-var faces = {U:0,B:1,D:2,F:3,L:4,R:5};
+var faces = {U:0,B:1,D:2,F:3,L:5,R:4};
 function getFaceCube(data,face,index){
     return data[faces[face]*9+index];
 }
 setTimeout(function(){
-        connectSerial('/dev/ttyS0');
+        connectSerial('/dev/ttyAMA0');
+       
     },2000);
 module.exports.app = app;
