@@ -204,11 +204,12 @@ commandsAction["B2"]="m3 t3\nm2 t-2\nm3 t1\n";
 commandsAction["L2"]="m1 t1\nm3 t3\nm2 t-2\nm3 t1\nm1 t-1\n";
 commandsAction["R2"]="m1 t-1\nm3 t3\nm2 t-2\nm3 t1\nm1 t1\n";
 var cubesResult = "";
+var logResult = "";
 var faceIndex = 0;
 var stateIndex = 0;
 console.log("starting!!!!");
 function getCubeState(){
-    var delay = 3500;
+    var delay = 2000;
     stateIndex++;
     if(stateIndex<22){
         if(stateIndex==1){
@@ -275,7 +276,7 @@ function getCubeState(){
 }
 function captureCube(){
     var debug = true;
-    for(var i=0;i<30;i++){
+    for(var i=0;i<60;i++){
         cam.frame();
     }
     var imageFrame = cam.frame();
@@ -321,7 +322,7 @@ function captureCube(){
         }
             row+="\n";
     }
-    console.log(row);
+    logResult += row;
     faceIndex++;
     if(faceIndex>=6){
         console.log(cubesResult);
@@ -366,10 +367,16 @@ function captureCube(){
         }else{
             console.log("solve fail!!!!");            
             setTimeout(function(){
+                fs.open(path+"/log.txt","w",function(err,fd){
+                    var buf = new Buffer(logResult);
+                    fs.writeSync(fd,buf,0,buf.length,0);
+                    logResult = "";
+                });
                 sendCommand( "m4 t0");
                 isMoving = false;
             }, 5000);
         }
+        
         cubesResult = "";
         faceIndex = 0;
     }
@@ -384,14 +391,14 @@ function checkColor(r,g,b,debug){
     g = Math.floor(g-c_min);
     b = Math.floor(b-c_min);
     if(debug)
-        console.log(r,g,b);
-     if(r>g&&r>150&&g>100&&b==0){
+        logResult+=r+":"+g+":"+b+"\n";
+     if(r>g&&r>180&&g>180&&b==0){
         return ["y","D"];//"yellow";            
     }else if(r==0&&b>150&&Math.abs(g-b)>50){
         return ["b","F"];//"blue";
     }else if(r<80&&g<80&&b<80){
         return ["w","U"];//"white";
-    }else if((r>170&&g>10&&b<20)||(r<170&&r>100&&g<20&&b<20)){
+    }else if((r>170&&g>35)||(r>170&&g>15&&b<20&&b>0)||(r<170&&r>100&&g<20&&b<20)){
         return ["o","R"];//"orange";
     }else if(r>150){
         return ["r","L"];//"red";
