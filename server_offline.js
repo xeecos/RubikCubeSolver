@@ -161,7 +161,7 @@ io.on('connection', function(socket){
   socket.on('error', function(err){
     console.log("ERROR: "+err);
   });
-  //update(socket);
+  update(socket);
 });
  
 // HTTP server
@@ -296,13 +296,13 @@ function captureCube(){
    var rawData = bmp.encode({data:rgba,width:imageFrame.width,height:imageFrame.height});
     //console.log(faceIndex);
     gd.createFromBmpPtr(rawData.data).saveJpeg(path+"/faces/"+(faceIndex+1)+".jpg",function(err){
-        console.log(err);
+        //console.log(err);
     });
     
-    var sx = 215;
-    var sy = 120;
-    var dw = 118;
-    var rw = 10;
+    var sx = 105;
+    var sy = 60;
+    var dw = 64;
+    var rw = 6;
     var len = rw*rw;
     var row = "";
     for(var i=0;i<3;i++){
@@ -393,8 +393,9 @@ function checkColor(r,g,b,debug){
     r = Math.floor(r-c_min);
     g = Math.floor(g-c_min);
     b = Math.floor(b-c_min);
-    if(debug)
-        logResult+=r+":"+g+":"+b+"\n";
+    if(debug){
+          logResult+=r+":"+g+":"+b+"\n";
+     }
      if((r>210&&g>210&&Math.abs(r-g)<20&&b<50)||(Math.abs(r-g)<20&&r>150)){
         return ["y","D"];//"yellow";            
     }else if(r<50&&b>g&&b>20){
@@ -421,6 +422,5 @@ function getFaceCube(data,face,index){
 }
 setTimeout(function(){
         connectSerial('/dev/ttyAMA0');
-       
-    },2000);
+},2000);
 module.exports.app = app;

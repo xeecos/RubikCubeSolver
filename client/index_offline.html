@@ -179,9 +179,9 @@ body {
 		// Show loading notice
 		var canvas = document.getElementById('canvas-mark');
 		var ctx = canvas.getContext('2d');
-        var sx = 50;
-        var sy = 30;
-        var dw = 69;
+        var sx = 100;
+        var sy = 60;
+        var dw = 64;
         var rw = 6;
         for(var i=0;i<3;i++){
             for(var j=0;j<3;j++){
@@ -301,13 +301,13 @@ body {
             captureCube(true);
         });
 		// Start the player
-        socket = io("http://localhost:8080");
+        socket = io(domain+":8080");
         var canvas = document.getElementById("canvas-video");
         var ctx = canvas.getContext("2d");
 
         var image = new Image();
         image.onload = function() {
-            ctx.drawImage(image, 0, 0, 240, 240);
+            ctx.drawImage(image, 0, 0, 320, 240);
         };
 
         socket.on('frame', function (frame) {
