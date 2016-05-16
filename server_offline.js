@@ -295,10 +295,11 @@ function captureCube(){
     }
    var rawData = bmp.encode({data:rgba,width:imageFrame.width,height:imageFrame.height});
     //console.log(faceIndex);
-    gd.createFromBmpPtr(rawData.data).saveJpeg(path+"/faces/"+(faceIndex+1)+".jpg",function(err){
+    if(debug){
+        gd.createFromBmpPtr(rawData.data).saveJpeg(path+"/faces/"+(faceIndex+1)+".jpg",function(err){
         //console.log(err);
-    });
-    
+        });
+    }
     var sx = 105;
     var sy = 60;
     var dw = 64;
@@ -362,7 +363,14 @@ function captureCube(){
                 codes+=commandsAction[list[i]];
             }
             codes = codes.substr(0,codes.length-1);
-             console.log("starting solve");
+             console.log("starting solve");     
+            setTimeout(function(){
+                fs.open(path+"/log.txt","w",function(err,fd){
+                    var buf = new Buffer(output);
+                    fs.writeSync(fd,buf,0,buf.length,0);
+                    logResult = "";
+                });
+            }, 100);
             setTimeout(function(){
                 commands = codes.split("\n");       
                 nextCommand();
@@ -396,15 +404,15 @@ function checkColor(r,g,b,debug){
     if(debug){
           logResult+=r+":"+g+":"+b+"\n";
      }
-     if(Math.abs(r-g)<30&&b<50&&r>100){
+     if(Math.abs(r-g)<20&&b<50&&r>100){
         return ["y","D"];//"yellow";            
-    }else if(r<50&&b>100&&g<100){
+    }else if(r<50&&((b>100&&g<100)||(g>100&&b>g+50))){
         return ["b","F"];//"blue";
     }else if(r<30&&g<30&&b<30){
         return ["w","U"];//"white";
-    }else if((r>200&&g<200&&g>150&&b<50)){
+    }else if((r>120&&g<200&&g-b>40)){
         return ["o","R"];//"orange";
-    }else if(r>150&&g<50&&b<50){
+    }else if(r>130&&g<40&&b<40){
         return ["r","L"];//"red";
     }else if(r<50&&g>100){
         return ["g","B"];//"green";
@@ -416,7 +424,7 @@ function getPixel(x,y,pixels){
     var i = (y*frameWidth+x)*3;
     return [pixels[i],pixels[i+1],pixels[i+2]];
 }
-var faces = {U:0,B:1,D:2,F:3,L:5,R:4};
+var faces = {U:0,B:1,D:2,F:3,L:4,R:5};
 function getFaceCube(data,face,index){
     return data[faces[face]*9+index];
 }
