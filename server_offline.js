@@ -396,9 +396,9 @@ function checkColor(r,g,b,debug){
     if(debug){
           logResult+=r+":"+g+":"+b+"\n";
      }
-     if((r>210&&g>210&&Math.abs(r-g)<20&&b<50)||(Math.abs(r-g)<20&&r>150)){
+     if(Math.abs(r-g)<30&&b<50&&r>100){
         return ["y","D"];//"yellow";            
-    }else if(r<50&&b>g&&b>20){
+    }else if(r<50&&b>100&&g<100){
         return ["b","F"];//"blue";
     }else if(r<30&&g<30&&b<30){
         return ["w","U"];//"white";
@@ -406,7 +406,7 @@ function checkColor(r,g,b,debug){
         return ["o","R"];//"orange";
     }else if(r>150&&g<50&&b<50){
         return ["r","L"];//"red";
-    }else if(r<50&&g>=b&&g>20){
+    }else if(r<50&&g>100){
         return ["g","B"];//"green";
     }else{
         return ["o","R"];
