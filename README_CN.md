@@ -49,9 +49,9 @@
 
 使用1个舵机和1个步进电机通过机械结构实现魔方三个动作：
 
- 1. 魔方整体水平旋转90°：连杆松开，底盘旋转。
- 2. 魔方底层逆时针或顺时针旋转90°：连杆扣住魔方，底盘旋转。
- 3. 魔方垂直翻转90°：连杆做直线往返运动。
+ 1. 魔方整体水平旋转90°：连杆松开，底盘旋转。![cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/4.jpg)
+ 2. 魔方底层逆时针或顺时针旋转90°：连杆扣住魔方，底盘旋转。![cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/3.jpg)
+ 3. 魔方垂直翻转90°：连杆做直线往返运动。![cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/2.jpg)
 
 通过这3个动作可以完成UFDLRB六面任意的旋转，实现解魔方的动作。
 
