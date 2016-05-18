@@ -62,3 +62,22 @@
 ## 运行效果
 
 [![cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/5.jpg)](http://v.youku.com/v_show/id_XMTU3NTA0NjE5Ng==.html)
+
+## 使用方法
+
+MegaPi：
+
+ * 安装Makeblock libraries（https://github.com/Makeblock-official/Makeblock-Libraries）， 使用Arduino IDE 编译并上传Arduino代码
+
+树莓派：
+
+ ```
+ git clone https://github.com/xeecos/RubikCubeSolver
+ cd RubikCubeSolver
+ npm install
+ node server_offline.js
+ ```
+ 连线：
+  * 步进电机接Slot 1
+  * 舵机接Port7 Slot1
+  * 开关接Port7 Slot2
