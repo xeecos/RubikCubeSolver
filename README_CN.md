@@ -31,20 +31,24 @@
     - M(Middle)、E(Equator)、S(Side)代表旋转中间层，相当于Rr'、Uu'、Bb'。
 
 ## 解魔方算法
+
  * CFOP（又称弗雷德里奇法（Fridrich Method））是速解魔方最常用的公式系统之一，由底十字（Cross）、下两层（F2L，First 2 Layers）、顶层定向（OLL，Orientation of last layer）、顶层排列（PLL，Permutation of last layer）四个步骤组成。
  * 本项目使用的算法来源：http://en.wikipedia.org/wiki/Optimal_solutions_for_Rubik's_Cube#Thistlethwaite.27s_algorithm
  * Javascript版本：https://github.com/stringham/rubiks-solver
 
 ## 图像采集和颜色识别
+
  * 树莓派可以使用支持UVC的摄像头，并通过```v4l2-ctl```命令调整摄像头参数。
  * 在nodejs环境下，可以使用``linuxcam```采集到摄像头每帧图像的RGB数据，有了这些数据我们可以区分出魔方每一个块的颜色。
  * 例如：红色时，R值非常大，G和B值非常小。
  * 通过翻转和旋转魔方，摄像头可以采集到六面54个方格的颜色，并能计算出魔方初始的状态。再通过解魔方算法将解魔方过程的动作计算出来。
 
 ## 运动机构
+
 使用1个舵机和1个步进电机通过机械结构实现魔方三个动作：
  1. 魔方整体水平旋转90°：连杆松开，底盘旋转。
  2. 魔方底层逆时针或顺时针旋转90°：连杆扣住魔方，底盘旋转。
  3. 魔方垂直翻转90°：连杆做直线往返运动。
- 
+ 通过这3个动作可以完成UFDLRB六面任意的旋转，实现解魔方的动作。
+
 ## 运行效果
