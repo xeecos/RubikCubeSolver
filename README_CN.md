@@ -17,7 +17,7 @@
 
  * 每个块的编号
  
-  [cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/1.jpg)
+  ![cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/1.jpg)
 
 ### 解魔方动作的书写方式
   U的转法，即顺时钟转动上层，为了记录下复原、转乱的过程或公式的步骤，会用Singmaster符号来书写（由David Singmaster发明）。
