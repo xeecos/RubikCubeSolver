@@ -56,3 +56,5 @@
 通过这3个动作可以完成UFDLRB六面任意的旋转，实现解魔方的动作。
 
 ## 运行效果
+
+[视频](http://v.youku.com/v_show/id_XMTU3NDk3NTMzMg==.html)
