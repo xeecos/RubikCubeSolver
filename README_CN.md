@@ -36,6 +36,9 @@
  * Javascript版本：https://github.com/stringham/rubiks-solver
 
 ## 图像采集和颜色识别
+ * 树莓派可以使用支持UVC的摄像头，并通过```v4l2-ctl```命令调整摄像头参数。
+ * 在nodejs环境下，可以使用``linuxcam```采集到摄像头每帧图像的RGB数据，有了这些数据我们可以区分出魔方每一个块的颜色。
+ * 例如：红色时，R值非常大，G和B值非常小。
 
 ## 运动机构
 
