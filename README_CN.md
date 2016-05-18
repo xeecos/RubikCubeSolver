@@ -17,7 +17,7 @@
 
  * 每个块的编号
  
-  ![cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/1.jpg)
+  [cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/1.jpg)
 
 ### 解魔方动作的书写方式
   U的转法，即顺时钟转动上层，为了记录下复原、转乱的过程或公式的步骤，会用Singmaster符号来书写（由David Singmaster发明）。
@@ -31,6 +31,9 @@
     - M(Middle)、E(Equator)、S(Side)代表旋转中间层，相当于Rr'、Uu'、Bb'。
 
 ## 解魔方算法
+ * CFOP（又称弗雷德里奇法（Fridrich Method））是速解魔方最常用的公式系统之一，由底十字（Cross）、下两层（F2L，First 2 Layers）、顶层定向（OLL，Orientation of last layer）、顶层排列（PLL，Permutation of last layer）四个步骤组成。
+ * 本项目使用的算法来源：http://en.wikipedia.org/wiki/Optimal_solutions_for_Rubik's_Cube#Thistlethwaite.27s_algorithm
+ * Javascript版本：https://github.com/stringham/rubiks-solver
 
 ## 图像采集和颜色识别
 
