@@ -57,4 +57,4 @@
 
 ## 运行效果
 
-[![cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/5.jpg)](http://v.youku.com/v_show/id_XMTU3NDk3NTMzMg==.html)
+[![cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/5.jpg)](http://v.youku.com/v_show/id_XMTU3NTA0NjE5Ng==.html)
