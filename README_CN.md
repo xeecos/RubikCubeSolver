@@ -78,6 +78,6 @@ MegaPi：
  node server_offline.js
  ```
  连线：
-  * 步进电机<-->Slot 1
+  * 步进电机 <--> Slot 1
   * 舵机 <--> Port7|Slot1
   * 开关 <--> Port7|Slot2
