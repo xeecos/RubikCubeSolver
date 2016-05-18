@@ -1,4 +1,9 @@
 # 三阶魔方机器人
+
+## 运行效果
+
+[![cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/5.jpg)](http://v.youku.com/v_show/id_XMTU3NTA0NjE5Ng==.html)
+
 ## 魔方基本元素
 ### 结构
 
@@ -58,10 +63,6 @@
  3. 魔方垂直翻转90°：连杆做直线往返运动。![cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/2.jpg)
 
 通过这3个动作可以完成UFDLRB六面任意的旋转，实现解魔方的动作。
-
-## 运行效果
-
-[![cubes](https://github.com/xeecos/RubikCubeSolver/raw/master/images/5.jpg)](http://v.youku.com/v_show/id_XMTU3NTA0NjE5Ng==.html)
 
 ## 使用方法
 
