@@ -105,7 +105,12 @@ function connectSerial(port){
     serialPort.on('open', function () {
       console.log('serial opened!');
       serialPort.on('data', function (data) {
-        _buffers += data.toString().toLowerCase();
+        for(var i=0;i<data.length;i++){
+            if(data[i]>0){
+    console.log(data[i]);
+              _buffers += data[i].toString().toLowerCase();
+            }
+        }
         if(_buffers.indexOf('ok')>-1){
             nextCommand();
             _buffers = "";
@@ -170,6 +175,7 @@ http.listen(app.get('port'), function () {
 });
 function sendCommand(cmd){
     try{
+        console.log(cmd);
         serialPort.write(cmd+"\n");
     }catch(err){
         console.log(err);
@@ -210,6 +216,9 @@ var cubesResult = "";
 var logResult = "";
 var faceIndex = 0;
 var stateIndex = 0;
+var faceColors = [];
+var faceNames = ["U","B","D","F","L","R"];
+var faces = {U:0,B:1,D:2,F:3,L:4,R:5};
 console.log("starting!!!!");
 function getCubeState(){
     var delay = 1500;
@@ -277,6 +286,7 @@ function getCubeState(){
         setTimeout(getCubeState,delay);
     }
 }
+
 function captureCube(){
     var debug = true;
     for(var i=0;i<60;i++){
@@ -300,8 +310,8 @@ function captureCube(){
         //console.log(err);
         });
     }
-    var sx = 105;
-    var sy = 60;
+    var sx = 100;
+    var sy = 54;
     var dw = 64;
     var rw = 6;
     var len = rw*rw;
@@ -321,7 +331,10 @@ function captureCube(){
             var g = _rgb[1]/len;
             var b = _rgb[2]/len;
             var cc = checkColor(r,g,b,debug);
-           cubesResult+=(cc[1]+"");
+            if(i==1&&j==1){
+                faceColors[faceIndex]=cc[0];
+            }
+           cubesResult+=(cc[0]+"");
             row+=cc[0]+" ";
         }
             row+="\n";
@@ -330,6 +343,9 @@ function captureCube(){
     faceIndex++;
     if(faceIndex>=6){
         console.log(cubesResult);
+        for(var ci=0;ci<6;ci++){
+          cubesResult = cubesResult.split(faceColors[ci]).join(faceNames[ci ]);
+        }
         var cubes = cubesResult.split("");
         var states = [];
         states.push(getFaceCube(cubes,"U",7)+getFaceCube(cubes,"F",1));
@@ -424,11 +440,10 @@ function getPixel(x,y,pixels){
     var i = (y*frameWidth+x)*3;
     return [pixels[i],pixels[i+1],pixels[i+2]];
 }
-var faces = {U:0,B:1,D:2,F:3,L:4,R:5};
 function getFaceCube(data,face,index){
     return data[faces[face]*9+index];
 }
 setTimeout(function(){
-        connectSerial('/dev/ttyAMA0');
+        connectSerial('/dev/ttyS0');
 },2000);
 module.exports.app = app;
